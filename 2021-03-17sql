@@ -1,0 +1,121 @@
+WHERE 조건 1이 10건이면 AND  조건2는 최대 열건을 넘을 수 없음
+ex) WHERE deptno = 10 AND sel >= 500 (sel이 500이상인 사람이 10명을 넘을수 없구나)
+
+Function
+    Single  row function   
+     단일 행을 기준으로 작업하고, 행당 하나의 결과를 반환
+     특정 컬럼의 문자열 길이 : length
+     
+    Multi row function
+     여러 행을 기준으로 작업하고 하나의 결과를 반환
+     그룹함수
+       - (count,sum,avg)
+       
+ 함수명을 보고
+  1. 파라미터가 어떤게 들어갈까?
+  2. 몇개의 파라미터가 들어갈까?
+  3. 반환되는 값은 무엇일까?
+  
+  
+ SELECT ename, LOWER(ename), UPPER(ename), INITCAP('test'), REPLACE(ename, 'S', 'T')
+ FROM emp;
+ 
+ SINGLE ROW FUNCTION : WHERE절에서도사용 가능
+ emp 테이블에 등록된 직원들 중에 직원의 이름의 길이가 5글자를 초과하는 직원만 조회
+ select *
+ from emp
+ where LENGTH(ename) > 5;
+ 
+select *
+from emp
+where lower(ename) = 'smith';
+
+select *
+from emp
+where ename = upper('smith');
+
+ORACLE 문자열 함수
+
+SELECT  'HELLO' || ',' || 'WORLD',
+        CONCAT('HELLO', CONCAT( ', ' ,'WORLD')) CONCAT,
+        SUBSTR('HELLO , WORLD' , 1, 5) SUBSTR,
+        LENGTH('HELLO , WORLD') LENGTH,
+        INSTR('HELLO, WORLD', 'O') INSTR,
+        INSTR('HELLO, WORLD', 'O', 6) INSTR2,
+        LPAD('HELLO, WORLD', 15, '*') LPAD,
+        RPAD('HELLO, WORLD', 15, '*') RPAD,
+        REPLACE('HELLO, WORLD' , 'O', 'X') REPLACE,
+        TRIM('       HELLO, WORLD      ') TRIM,
+        TRIM('D' FROM 'HELLO, WORLD') TRIM
+FROM dual;
+
+number ( round = 반올림 , trunc = 내림 , mod = 나눗셈의 나머지) 
+
+SELECT MOD(10, 3)
+FROM EMP
+
+문자열에 제발 ' ' 적기 !!!!!!!!!!
+
+SELECT -- ROUND : 반올림 --
+ROUND(105.54,1) ROUND1, -- 반올림 결과가 소숫점 첫번째 자리까지 나오게 함
+ROUND(105.55,1) ROUND2, -- 반올림 결과가 소숫점 첫번째 자리까지 나오게 함
+ROUND(105.55,0) ROUND3, -- 반올림 결과가 소숫점이 나오지않음
+ROUND(105.55,-1)ROUND4 -- 1의자리에서 반올림 해라
+FROM dual;
+
+SELECT -- TRUNC : 내림 --
+TRUNC(105.54, 1) TRUNC1, -- 결과가 소숫점 첫번째 자리까지 나오게 함
+TRUNC(105.55, 1) TRUNC2, -- 결과가 소숫점 첫번째 자리까지 나오게 함
+TRUNC(105.55, 0) TRUNC3, -- 결과가 소숫점이 나오지않음
+TRUNC(105.55, -1) TRUNC4, -- 1의자리에서 내림 해라
+TRUNC(105.55)TRUNC5
+FROM dual;
+
+sal을 1000으로 나눴을 때의 몫, sal을 1000으로 나눴을 때의 나머지
+SELECT empno, ename, sal, TRUNC(sal/1000), MOD(sal, 1000) 
+FROM emp;
+
+날짜 <==> 문자
+서버의 현재 시간 : sysdate
+
+SELECT SYSDATE +1/24/60/60
+FROM dual;
+
+Function
+SELECT
+TO_DATE('2019.12.31' , 'YYYY.MM.DD') LASTDAY,
+TO_DATE('2019.12.31' , 'YYYY.MM.DD') -5 LASTDAY_BEFORE5,
+SYSDATE NOW,
+SYSDATE -3 NOW_BEFORE3
+FROM dual;
+
+TO_DATE : 인자-문자, 문자의 형식
+TO_CHAR : 인자-날짜, 문자의 형식
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'YY')
+FROM dual;
+
+SELECT SYSDATE, TO_CHAR(SYSDATE, 'IW'), TO_CHAR(SYSDATE, 'D')
+FROM dual;
+
+DATE
+  format
+    yyyy : 4자리 연도
+    mm : 2자리 월
+    dd : 2자리 일자
+    d : 주간 일자(1~7 일요일이 0)
+    IW : 주차(1~53)
+    HH : HH12 : 2자리 시간 (12시간 표현)
+    HH24 : 2자리 시간 (24시간 표현)
+    MI : 2자리 분
+    SS : 2자리 초
+    
+SELECT
+TO_CHAR(SYSDATE, 'YYYY-MM-DD') DT_DASH,
+TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24-MI-SS') DT_DASH_WITH_TIME, 
+TO_CHAR(SYSDATE, 'DD-MM-YYYY') DT_DD_MM_YYYY
+FROM dual;
+
+SELECT
+SYSDATE, TO_DATE(TO_CHAR (SYSDATE-5, 'YYYYMMDD'), 'YYYYMMDD')
+FROM dual;
