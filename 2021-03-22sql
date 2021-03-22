@@ -1,0 +1,83 @@
+SELECT lprod.lprod_gu, lprod.lprod_nm
+FROM lprod,prod
+WHERE lprod.lprod_gu = prod.prod_lgu;
+
+SELECT buyer.buyer_id , buyer.buyer_name , prod.prod_id , prod.prod_name
+FROM buyer , prod
+WHERE buyer.buyer_id = prod.prod_buyer;
+
+SELECT member.mem_id, member.mem_name, prod.prod_name, cart.cart_qty
+FROM member, cart, prod
+WHERE cart.cart_member = member.mem_id AND cart.cart_prod = prod.prod_id;
+
+SELECT member.mem_id, member.mem_name, prod.prod_name, cart.cart_qty
+FROM member, cart, prod
+JOIN cart ON (member.mem_id = cart.cart_member)
+JOIN prod ON (cart.cart_prod = prod.prod_id);
+
+-- 4번 --
+SELECT customer.CID, customer.CNM, product.pid, cycle.day, cycle.cnt
+FROM product, customer, cycle
+WHERE customer.cid = cycle.cid AND cycle.pid = product.pid
+AND cnm != 'cony';
+
+-- 5번 --
+SELECT customer.CID, customer.CNM, product.pid, product.pnm, cycle.day, cycle.cnt
+FROM product, customer, cycle
+WHERE customer.cid = cycle.cid AND cycle.pid = product.pid
+AND cnm != 'cony';
+
+--6번--
+SELECT customer.CID, customer.CNM, product.pid, product.pnm, sum(cycle.cnt) cnt 
+FROM product, customer, cycle
+WHERE customer.cid = cycle.cid AND cycle.pid = product.pid
+GROUP BY customer.CID, customer.CNM, product.pid, product.pnm, cycle.cnt ;
+ 
+
+--7번--
+SELECT product.pid, product.pnm, sum(cycle.cnt) cnt
+FROM product, cycle
+WHERE cycle.pid = product.pid
+GROUP BY product.pid, product.pnm;
+
+INNER JOIN : 밴다이어 그램으로 그렸을때 교집합
+OUTER JOIN : 칼럼 연결이 실패해도 [기준]이 되는 테이블 쪽의 컬럼 정보는 나오도록 하는 조인 / 벤다이어 그램으로 그렸을때 합집합
+LEFT OUTER JOIN : 기준이 왼쪽에 기술한 테이블이 되는 outer join
+RIGHT OUTER JOIN : 기준이 오른쪽에 기술한 테이블이 되는 outer join
+FULL OUTER JOIN : LEFT OUTER + RIGHT OUTER - 중복 데이터 제거
+
+직원의 이름, 직원의 상사 이름 두개의 컬럼이 나오도록 join quary 작성
+SELECT e.ename, m.ename  
+FROM emp e, emp m
+WHERE e.mgr = m.empno(+);
+--outer 조인으로 인해 데이터가 안나오는 쪽 컬럼에 (+)를 붙여준다.
+
+SELECT e.ename, m.ename, m.deptno
+FROM emp e RIGHT OUTER JOIN emp m ON (e.mgr = m.empno AND m.deptno = 10);
+
+SELECT e.ename, m.ename, m.deptno
+FROM emp e, emp m
+WHERE e.mgr = m.empno(+)
+AND m.deptno(+) = '10';
+
+--FULL OUTER--
+select e.ename, m.ename
+from emp e full outer join emp m on (e,mgr = m.empno);
+
+select e.ename, m.ename
+from emp e , emp m;
+where e,mgr(+) = ,.empno(+);
+Full Outer Join은 오라클 SQL문법으로 제공하지 않는다.
+
+
+OUTER JOIN 1]
+
+SELECT*
+FROM buyprod;
+WHERE buy_date = TO_DATE('2005/01/25', 'yyyy/mm/dd');
+
+모든 제품을 다 보여주고, 실제 구매가 있을 때는 구매수량을 조회, 없을 경우 null로 표현
+모든 제품코드 : 수량
+
+SELECT buyprod.buy_date, buyprod.buy_prod, prod.prod_id, prod.prod_name, buyprod.buy_qty
+from buyprod RIGHT OUTER JOIN prod ON (buyprod.buy_prod = prod.prod_id AND buy_date = TO_DATE('2005/01/25', 'yyyy/mm/dd') );
