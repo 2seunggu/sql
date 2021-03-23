@@ -1,0 +1,53 @@
+월별실적
+                반도체     핸드폰     냉장고
+2021년 1월 :      500       300       400
+2021년 2월 :      500       300       400
+    º
+    º
+    º
+    º
+    º
+    º
+2021년 12월 :      500       300       400    
+
+테이블
+SELECT buy_date, buy_prod, prod_id, prd_nm, NVL(buy_qty, 0)
+FROM buyprod,prod
+WHERE buyprod.buy_prod(+) = prod.prod_id;
+    
+SELECT product.*, cycle.cid, NVL(cycle.day, 0) day,NVL(cycle.cnt, 0) cnt
+FROM product LEFT OUTER JOIN cycle ON(product.pid =cycle.pid AND cid= :cid);
+
+SELECT product.*, :cid, NVL(cycle.day, 0) day, NVL(Cycle.cnt, 0) cnt
+FROM product, cycle
+WHERE product.pid = cycle.pid(+)
+AND cid(+) = :cid;
+
+
+SELECT product.*, cid, NVL(cycle.day, 0) day, NVL(Cycle.cnt, 0) cnt
+FROM product, cycle
+WHERE product.pid = cycle.pid(+)
+AND cid(+) = :cid;
+
+SELECT SIDO, SIGUNGU, STORECATEGORY, count('*') as count,
+FROM BURGERSTORE
+WHERE SIDO = '대전' AND SIGUNGU = '중구' AND STORECATEGORY = ''
+GROUP BY SIDO, SIGUNGU, STORECATEGORY
+HAVING count(*) >= 1;
+
+--정리필수
+--행을 컬럼으로 바꾸는 방법(pivot)
+--storecategory가 burger king 이면 1, 아니면0
+--storecategory가 kfc 이면 1, 아니면0
+--storecategory가 macdonald 이면 1, 아니면0
+--storecategory가 lotteria 이면 1, 아니면0
+--나누는 수가 0이면 안나눠짐
+SELECT sido, sigungu, 
+    (SUM(DECODE(storecategory, 'BURGER KING', 1,0))+ 
+    SUM(DECODE(storecategory, 'KFC', 1,0))+
+    SUM(DECODE(storecategory, 'MACDONALD', 1,0)) ) /
+    DECODE(SUM(DECODE(storecategory, 'LOTTERIA', 1,0)),0,1,SUM(DECODE(storecategory, 'LOTTERIA', 1,0))), 2) idx
+FROM burgerstore
+ORDER BY sido, sigungu
+ORDER BY sido, sigungu;
+
