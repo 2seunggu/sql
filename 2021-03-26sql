@@ -1,0 +1,148 @@
+INSERT 단건, 여러건
+
+UPDATE 테이블명 set 컬럼명1 = 값1
+UPDATE 테이블명 set 컬럼명1 = (스칼라 서브쿼리), 컬럼명2 = (스칼라 서브쿼리)
+
+9999사번을 갖는 brown 직원을 입력
+;
+INSERT INTO emp (empno, ename) VALUES (9999, 'brown');
+
+DEsc emp;
+
+
+select *
+from emp
+
+9999번 직원의 deptno와 job정보를 smith 사원의 deptno, job정보로 업데이트
+
+update emp set deptno = (SELECT deptno
+                         FROM emp
+                         WHERE ename = 'SMITH'),
+                         job = (SELECT job
+                         FROM emp
+                         WHERE ename = 'SMITH')
+WHERE empno = 9999;
+
+DELECT : 기존에 존재하는 데이터를 삭제
+DELETE 테이블명
+WHERE 조건
+
+DELETE emp
+WHERE empno ='9999'
+
+DELETE emp
+WHERE mgr = '7698';
+
+SELECT *
+from emp
+where empno IN(SELECT empno
+             FROM emp
+             WHERE mgr = 7698);
+             
+DBMS는 DML 문장을 실행하게 되면 LOG를 남긴다.
+
+이건 실수하면 난리남
+로그를 남기지 않고 더 빠르게 데이터를 삭제하는 방법 : TRUNCATE
+ - DDL이 아님
+ - ROLLBACK 불가(복구불가)
+ - 주로 테스트 환경에서 사용
+ 
+CREATE TABLE emp_test AS
+SELECT *
+FROM emp;
+
+
+ROLLBACK;
+
+SELECT *
+FROM emp_test;
+
+TRUNCATE TABLE emp_test;
+
+ROLLBACK;
+
+선 : 데이터 조회
+후 : 신규에 입력
+선 : 데이터 조회
+
+인덱스
+ - 눈에 안보여
+ - 테이블의 일부 컬럼을 사용하여 데이터를 정렬한 객체
+  ==> 원하는 데이터를 빠르게 찾을 수 있다.
+ - 일부 컬럼과 함께 그 컬럼의 행을 찾을 수 있는 ROWID가 같이 저장됨
+ 
+ ROWID : 테이블의 저장된 행의 물리적 위치, 집 주소 같은 개념
+         주소를 통해서 해당 행의 위치를 빠르게 접근하는 것이 가능 
+         데이터가 입력이 될 때 생성
+         
+SELECT emp.*
+FROM emp
+WHERE empno = 7369;
+
+SELECT emp.*
+FROM emp
+WHERE empno = 7369;
+
+SELECT rowid, emp.*
+FROM emp
+WHERE ROWID like 'AAAE5gAAFAAAACLAAA';
+
+EXPLAIN PLAN FOR
+SELECT *
+FROM emp
+WHERE empno = 7782;
+
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+오라클 객체 생성
+CREATE 객체 타입(INDEX, TABLE....) 객체명
+    =    int 변수명 
+인덱스 생성
+CREATE (UNIQUE) INDEX 인덱스이름 ON 테이블명(컬럼1, 컬럼2......);
+
+CREATE UNIQUE INDEX PK_emp ON emp(empno);
+
+SELECT rowid, emp.*
+FROM emp
+WHERE ROWID like 'AAAE5gAAFAAAACLAAA';
+
+EXPLAIN PLAN FOR
+SELECT empno
+FROM emp
+WHERE empno = 7782;
+
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY);
+DROP INDEX PK_EMP;
+
+CREATE UNIQUE IDX_emp_01 ON emp (empno);
+EXPLAIN PLAN FOR
+SELECT *
+FROM emp
+WHERE empno = '7782';
+
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+
+CREATE INDEX idx_emp_02 ON emp (job); 
+
+EXPLAIN PLAN FOR
+SELECT *
+FROM emp
+WHERE JOB ='MANAGER'
+AND ename LIKE 'c%' ;
+
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY);
+
+CREATE INDEX idx_emp_03 ON emp (job, ename);
+
+EXPLAIN PLAN FOR
+SELECT *
+FROM emp
+WHERE JOB ='MANAGER'
+AND ename LIKE '%C' ;
+
+ABC, BCD, ACB
