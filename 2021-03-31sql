@@ -1,0 +1,107 @@
+SELECT empno, ename, sal, deptno,
+round(avg(sal) OVER(PARTITION BY deptno),2) abg_sal,
+MIN(sal) OVER(PARTITION BY deptno) MIN_SAL,
+MAX(sal) OVER(PARTITION BY deptno) MAX_SAL,
+SUM(sal) OVER(PARTITION BY deptno) SUM_SAL,
+COUNT(*) OVER(PARTITION BY deptno) CNT
+FROM emp;
+
+LAG : 파티션별 윈도우에서 이전 행의 컬럼 값
+
+LEAD : 파티션별 윈도우에서 이후 행의 컬럼 값;
+
+자신보다 급여 순위가 한단계 낮은 사람의 급여를 5번째 컬럼으로 생성
+SELECT empno, ename, hiredate, sal,
+LEAD(sal) OVER(ORDER BY sal desc, hiredate) lead
+FROM emp;
+
+--실습1]
+SELECT empno, ename, hiredate, sal,
+LAG(sal) OVER(ORDER BY sal desc, hiredate) LAG_SAL
+FROM emp;
+
+--실습1-1]
+SELECT empno, ename, hiredate, sal,
+ROW_NUMBER() OVER(ORDER BY sal DESC, hiredate)rm
+FROM emp;
+
+SELECT *
+FROM 
+(SELECT a.*, ROWNUM rn
+FROM
+(SELECT empno, ename, hiredate,sal
+FROM emp
+ORDER BY sal DESC, hiredate) a) a,
+(SELECT a.*, ROWNUM rn
+FROM
+(SELECT empno, ename, hiredate,sal
+FROM emp
+ORDER BY sal DESC, hiredate) a) b 
+WHERE a.rn-1 = b.rn(+)
+ORDER BY a.sal DESC, a.hiredate;
+
+--실습 2]
+SELECT empno, ename, hiredate, job, sal,
+LAG(sal) OVER(PARTITION BY job ORDER BY sal desc, hiredate) LAG_SAL
+FROM emp;
+
+LAG, LEAD 함수의 두번째 인자 : 이전, 이후 몇번째 행을 가져올지 표기
+SELECT empno, ename, hiredate, sal,
+LAG(sal, 3) OVER(ORDER BY sal desc, hiredate) LAG_SAL
+FROM emp;
+
+실습 3]
+SELECT a.empno, a.ename, a.sal, sum(b.sal)
+FROM 
+(SELECT a.*, ROWNUM rn
+FROM
+(SELECT empno, ename, sal
+FROM emp
+ORDER BY sal empno ) a) a,
+(SELECT a.*, ROWNUM rn
+FROM
+(SELECT empno, ename, sal
+FROM emp
+ORDER BY sal empno ) a) b
+WHERE a.rn >= b.rn
+GROUP BY a.empno, a.ename, a.sal
+GROUP BY a.sal, a.empno;
+
+
+분석함수() OVER( [PARTITION] [ORDER] [WINDOWING] )
+WINDOWING : 윈도우 함수의 대상이 되는 행을 지정
+UNBOUNDED PRECEDING : 특정 행을 기준으로 모든 이전행(LAG)
+    n PRECEDING : 특정 행을 기준으로 N행 이전행(LAG)
+CURRENT ROW : 현재행 -> 기본값으로 적용
+UNBOUNDED FOLLOWING : 특정 행을 기준으로 모든 이후 행(LEAD)
+    n FOLLOWING : 특정 행을 기준으로 N행 이후 행(LEAD)
+    
+분석함수() over ( [] [order] [windowing])
+SELECT empno, ename, sal,
+SUM(sal) OVER(ORDER BY sal, empno ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) c_sum,
+SUM(sal) OVER(ORDER BY sal, empno ROWS  UNBOUNDED PRECEDING) c_sum
+--두개가 같으나 명확한 위에껄 추천
+FROM emp
+ORDER BY sal, empno;
+
+SELECT empno, ename, sal,
+SUM(sal) OVER(ORDER BY sal, empno ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING) c_sum
+FROM emp
+ORDER BY sal, empno;
+
+SELECT empno, ename, deptno, sal,
+SUM(sal) OVER(PARTITION BY deptno ORDER BY deptno, sal ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) c_sum
+FROM emp
+ORDER BY deptno, sal;
+
+rows 와 range의 차이
+SELECT empno, ename, sal,
+SUM(sal) OVER(ORDER BY sal ROWS UNBOUNDED PRECEDING) rows_c_sum,
+SUM(sal) OVER(ORDER BY sal RANGE UNBOUNDED PRECEDING) range_c_sum, --다음칸에도 같은 수치가 있다면 두개를 묶어서 적용?
+SUM(sal) OVER(ORDER BY sal) no_windowing_c_sum, --windowing을 지정하지 않으면 기본으로 range가 들어간다
+SUM(sal) OVER() no_ord_c_sum --전체합
+FROM emp
+ORDER BY deptno, sal;
+
+책 : sql 전문가가이드 하루 10분씩 핵심sql, 오라클실습(전문가로 가는 지름길)블로그있음 일상흔적
+https://tacademy.skplanet.com/live/player/onlineLectureDetail.action?seq=176 인강 여기서보기
